@@ -57,6 +57,26 @@ int readFile(int fd, int block_size, int block_count) {
   return ((n_read <0) ? n_read : total_read);
 }
 
+int writeFile(int fd, int block_size, int block_count) {
+  if (fd < 0) {
+    printf("Error in opening the file for writing\n");
+    return 1;
+  }
+      
+  int result = lseek(fd, block_size * block_count, SEEK_SET);
+  if (result < 0) {
+    printf("Error\n");
+    close(fd);
+    return 1;
+  }
+  result = write(fd, "a", 1);
+  if (result < 0) {
+    printf("Error\n");
+    close(fd);
+    return 1;
+   }
+}
+
 double now() {
     struct timeval tv;
     gettimeofday(&tv, 0);
@@ -79,42 +99,18 @@ int main(int argc, char *argv[]) {
 
 
   if (argv[2][1] == 'w') {
-    /*if ((fd = open(argv[1], O_RDWR|O_CREAT)) > 0) {
       startw = now();
-        for (int i = 0; i < block_size; i++) {
-          // buf[i] = i;
-          strcpy(fileContent, "Final Project");  
-        }       
-      write(fd, fileContent, block_size); 
-
-      endw = now();*/
-      startw = now();
-      fd = open(argv[1], O_RDWR|O_CREAT|O_EXCL, (mode_t)0600);
-      if (fd < 0) {
-      	printf("Error in opening the file for writing\n");
-      }
-      
-      int result = lseek(fd, block_size * block_count, SEEK_SET);
-      if (result < 0) {
-      	printf("Error\n");
-      	close(fd);
-      	return 1;
-      }
-      result = write(fd, "", 1);
-      if (result < 0) {
-      	printf("Error\n");
-      	close(fd);
-      	return 1;
-      }
+      fd = open(argv[1], O_RDWR|O_CREAT, (mode_t)0600);
+      writeFile(fd, block_size, block_count);
       endw = now();
-      printf("[final_proj.c] completed in %f seconds\n", endw - startw);
+      printf("[final_proj.c] writing completed in %f seconds\n", endw - startw);
   }
   else if (argv[2][1] == 'r') {
     if ((fd = open(argv[1], O_RDWR|O_CREAT)) > 0) {
       startr = now();
       readFile(fd, block_size, block_count);
       endr = now();
-      printf("[final_proj.c] completed in %f seconds\n", endr - startr);
+      printf("[final_proj.c] reading completed in %f seconds\n", endr - startr);
     }
   }
 
