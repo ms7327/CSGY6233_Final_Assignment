@@ -68,13 +68,8 @@ int main(int argc, char *argv[]) {
   double startr, endr;
   double startw, endw;
 
-  if (argc <= 3) {
-    printf("Too few arguments, exiting.\n");
-    printf("Sample usage: \n./run <filename> [-r|-w] <block_size> <block_count>\n");
-    return 0;
-  }
-  else if (argc > 5) {
-    printf("Too many arguments, exiting.\n");
+  if (argc != 5) {
+    printf("Incorrect number of arguments, exiting.\n");
     printf("Sample usage: \n./run <filename> [-r|-w] <block_size> <block_count>\n");
     return 0;
   }
@@ -82,22 +77,9 @@ int main(int argc, char *argv[]) {
   int block_size = atoi(argv[3]);
   int block_count = atoi(argv[4]);
 
- /* if (argv[2][1] == 'w') {
-    if ((fd = open(argv[1], O_RDWR|O_CREAT)) > 0) {
-      startw = now();
-      for (int i = 0; i < block_size; i++) {
-        buf[i] = i;
-      }       
-      startw = now();
-      
-      write(fd, buf, block_size); 
 
-      endw = now();
-      printf("[final_proj.c] completed in %f seconds\n", endw - startw);
-    }
-  }*/
   if (argv[2][1] == 'w') {
-    if ((fd = open(argv[1], O_RDWR|O_CREAT)) > 0) {
+    /*if ((fd = open(argv[1], O_RDWR|O_CREAT)) > 0) {
       startw = now();
         for (int i = 0; i < block_size; i++) {
           // buf[i] = i;
@@ -105,24 +87,30 @@ int main(int argc, char *argv[]) {
         }       
       write(fd, fileContent, block_size); 
 
+      endw = now();*/
+      startw = now();
+      fd = open(argv[1], O_RDWR|O_CREAT|O_EXCL, (mode_t)0600);
+      if (fd < 0) {
+      	printf("Error in opening the file for writing\n");
+      }
+      
+      int result = lseek(fd, block_size * block_count, SEEK_SET);
+      if (result < 0) {
+      	printf("Error\n");
+      	close(fd);
+      	return 1;
+      }
+      result = write(fd, "", 1);
+      if (result < 0) {
+      	printf("Error\n");
+      	close(fd);
+      	return 1;
+      }
       endw = now();
       printf("[final_proj.c] completed in %f seconds\n", endw - startw);
-    }
   }
   else if (argv[2][1] == 'r') {
     if ((fd = open(argv[1], O_RDWR|O_CREAT)) > 0) {
-      
-      // check if file is big enough for the input blocksize/count
-      // FILE *file = fopen(argv[1], "r");
-      // fseek(file, 0, SEEK_END);
-      // int size = ftell(file);
-      // fseek(file, 0, SEEK_SET);
-
-      // if (size < (block_size * block_count)) {
-      //   printf("File size: %d\n", size);
-      //   printf("File size not large enough, exiting. \n");
-      // }
-
       startr = now();
       readFile(fd, block_size, block_count);
       endr = now();
