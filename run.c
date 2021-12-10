@@ -65,13 +65,13 @@ int writeFile(int fd, int block_size, int block_count) {
       
   int result = lseek(fd, block_size * block_count, SEEK_SET);
   if (result < 0) {
-    printf("Error\n");
+    printf("Error1\n");
     close(fd);
     return 1;
   }
   result = write(fd, "a", 1);
   if (result < 0) {
-    printf("Error\n");
+    printf("Error2\n");
     close(fd);
     return 1;
    }
