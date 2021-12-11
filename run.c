@@ -6,7 +6,7 @@
 #include <sys/time.h>
 
 
-unsigned int xorbuf(int* buffer, int size) {
+unsigned int xorbuf(unsigned int* buffer, int size) {
     unsigned int result = 0;
     for (int i = 0; i < size; i++) {
         result ^= buffer[i];
@@ -16,21 +16,40 @@ unsigned int xorbuf(int* buffer, int size) {
 
 int readFile(int fd, int block_size, int block_count) {
   int n;
-  int *buf;
-  int total_read = 0;
-  int n_read;
-  int size = block_size * block_count;
-  buf = (int*)malloc(size*sizeof(int));
-    
-  while ((n_read = read(fd, buf + total_read, size - total_read)) > 0) {
-    total_read += n_read;
-  }  
-	
-  printf("xor: %08x\n", xorbuf(buf, total_read));
+  int *buf = (unsigned int*)malloc(block_size*sizeof(unsigned int));
+  unsigned int xor;
+  
+  for (int i = 0; i < block_count; i++) {
+  	n = read(fd, buf, block_size);
+  	xor = xorbuf(buf, n);
+  }
+  
+  printf("xor: %08x\n", xor);
   free(buf);
+  buf = NULL;
   close(fd);
-  return ((n_read <0) ? n_read : total_read);
+  return 0;
 }
+
+//original:
+/*int readFile(int fd, int block_size, int block_count) {
+  int n;
+  int totalRead = 0;
+  unsigned int size = block_size * block_count;
+  int *buf = (unsigned int*)malloc(size*sizeof(unsigned int));
+  unsigned int xor;
+    
+  while ((n = read(fd, buf + totalRead, size - totalRead)) > 0) {
+    totalRead += n;
+    xor = xorbuf(buf, totalRead);
+  }
+
+  printf("xor: %08x\n", xor);
+  free(buf);
+  buf = NULL;
+  close(fd);
+  return ((n < 0) ? n : totalRead);
+}*/
 
 int writeFile(int fd, int block_size, int block_count) {
   if (fd < 0) {
@@ -50,6 +69,7 @@ int writeFile(int fd, int block_size, int block_count) {
     close(fd);
     return 1;
    }
+   close(fd);
 }
 
 double now() {
