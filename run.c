@@ -14,60 +14,32 @@ unsigned int xorbuf(unsigned int* buffer, int size) {
     return result;
 }
 
-int readFile(int fd, int block_size, int block_count) {
-  int n;
-  int *buf = (unsigned int*)malloc(block_size*sizeof(unsigned int));
-  unsigned int xor;
-  
-  for (int i = 0; i < block_count; i++) {
-  	n = read(fd, buf, block_size);
-  	xor = xorbuf(buf, n);
+void readFile(int fd, int block_size, int block_count) {
+    int n;
+    unsigned int *buf = (unsigned int*)malloc(block_size*sizeof(unsigned int));
+    unsigned int xor;
+
+    for (int i = 0; i < block_count; i++) {
+      n = (int)(n/sizeof(unsigned int)); 
+  	  xor ^= xorbuf(buf, n);
   }
-  
-  printf("xor: %08x\n", xor);
-  free(buf);
-  buf = NULL;
-  close(fd);
-  return 0;
+    printf("xor: %08x\n", xor);
+    close(fd);
 }
 
-//original:
-/*int readFile(int fd, int block_size, int block_count) {
-  int n;
-  int totalRead = 0;
-  unsigned int size = block_size * block_count;
-  int *buf = (unsigned int*)malloc(size*sizeof(unsigned int));
-  unsigned int xor;
-    
-  while ((n = read(fd, buf + totalRead, size - totalRead)) > 0) {
-    totalRead += n;
-    xor = xorbuf(buf, totalRead);
-  }
-
-  printf("xor: %08x\n", xor);
-  free(buf);
-  buf = NULL;
-  close(fd);
-  return ((n < 0) ? n : totalRead);
-}*/
-
-int writeFile(int fd, int block_size, int block_count) {
+void writeFile(int fd, int block_size, int block_count) {
   if (fd < 0) {
     printf("Error in opening the file for writing\n");
-    return 1;
-  }
-      
+  }  
   int result = lseek(fd, block_size * block_count, SEEK_SET);
   if (result < 0) {
     printf("Error1\n");
     close(fd);
-    return 1;
   }
   result = write(fd, "a", 1);
   if (result < 0) {
     printf("Error2\n");
     close(fd);
-    return 1;
    }
    close(fd);
 }
