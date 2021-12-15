@@ -20,10 +20,10 @@ void readFile(int fd, int block_size, int block_count) {
     unsigned int *buf = (unsigned int*)malloc(block_size*sizeof(unsigned int));
     unsigned int xor;
 
-    for (int i = 0; i < block_count; i++) {
-      n = read(fd, buf, block_size);
+    while (n=read(fd, buf, block_size)) {
   	  xor ^= xorbuf(buf, n);
-  }
+  	}
+  	
     printf("xor: %08x\n", xor);
     close(fd);
 }
