@@ -14,13 +14,14 @@ unsigned int xorbuf(unsigned int* buffer, int size) {
     return result;
 }
 
+
 void readFile(int fd, int block_size, int block_count) {
     int n;
     unsigned int *buf = (unsigned int*)malloc(block_size*sizeof(unsigned int));
     unsigned int xor;
 
     for (int i = 0; i < block_count; i++) {
-      n = (int)(n/sizeof(unsigned int)); 
+      n = read(fd, buf, block_size);
   	  xor ^= xorbuf(buf, n);
   }
     printf("xor: %08x\n", xor);
@@ -30,7 +31,8 @@ void readFile(int fd, int block_size, int block_count) {
 void writeFile(int fd, int block_size, int block_count) {
   if (fd < 0) {
     printf("Error in opening the file for writing\n");
-  }  
+  }
+      
   int result = lseek(fd, block_size * block_count, SEEK_SET);
   if (result < 0) {
     printf("Error1\n");
