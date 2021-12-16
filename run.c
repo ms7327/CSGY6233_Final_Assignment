@@ -20,20 +20,25 @@ void readFile(int fd, int block_size, int block_count) {
     unsigned int *buf = (unsigned int*)malloc(block_size*sizeof(unsigned int));
     unsigned int xor;
 
-    while (n=read(fd, buf, block_size)) {
+		
+    while ((n=read(fd, buf, block_size))>0) {
   	  xor ^= xorbuf(buf, n);
   	}
   	
     printf("xor: %08x\n", xor);
+    free(buf);
+    buf = NULL;
     close(fd);
 }
 
 void writeFile(int fd, int block_size, int block_count) {
+	unsigned int *buf = (unsigned int*)malloc(block_size*sizeof(unsigned int));
+
   if (fd < 0) {
     printf("Error in opening the file for writing\n");
   }
       
-  int result = lseek(fd, block_size * block_count, SEEK_SET);
+  /*int result = lseek(fd, block_size * block_count, SEEK_SET);
   if (result < 0) {
     printf("Error1\n");
     close(fd);
@@ -42,6 +47,13 @@ void writeFile(int fd, int block_size, int block_count) {
   if (result < 0) {
     printf("Error2\n");
     close(fd);
+   }*/
+   
+   for (int i = 0; i < block_count; i++) {
+   	for (int j = 0; j < block_size; j++) {
+   		buf[j] = 'a';
+   	}
+   	write(fd, buf, block_size);
    }
    close(fd);
 }
@@ -55,7 +67,6 @@ double now() {
 int main(int argc, char *argv[]) {
   int fd, i, n;
   double startr, endr;
-  double startw, endw;
 
   if (argc != 5) {
     printf("Incorrect number of arguments, exiting.\n");
@@ -67,11 +78,8 @@ int main(int argc, char *argv[]) {
   int block_count = atoi(argv[4]);
 
   if (argv[2][1] == 'w') {
-      startw = now();
       fd = open(argv[1], O_RDWR|O_CREAT, (mode_t)0600);
       writeFile(fd, block_size, block_count);
-      endw = now();
-      printf("[run.c] writing completed in %f seconds\n", endw - startw);
       close(fd);
   }
   else if (argv[2][1] == 'r') {
