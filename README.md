@@ -16,7 +16,8 @@ This is the repo for the final project for CS-GY 6233. Information regarding the
 6. run2.sh
 7. run3.sh
 8. run5.sh
-9. run5_lseek.sh        
+9. run5_lseek.sh   
+10. Final_Report.pdf     
 ```                     
 
 ## Building the C files
